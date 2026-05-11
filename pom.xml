@@ -3,23 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>uz.mib.sip</groupId>
+    <groupId>uz.mib</groupId>
     <artifactId>sado-sip</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-
-    <name>Sado SIP Phone</name>
-    <description>Uzbek-language SIP softphone using JavaFX</description>
-
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.2</javafx.version>
-        <main.class>uz.mib.sip.Main</main.class>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -31,8 +24,17 @@
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>2.0.9</version>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -40,17 +42,30 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>${main.class}</mainClass>
+                    <mainClass>uz.mib.sip.MainApp</mainClass>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
+                    <archive>
+                        <manifest>
+                            <mainClass>uz.mib.sip.MainApp</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals><goal>single</goal></goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

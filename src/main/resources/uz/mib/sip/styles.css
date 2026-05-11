@@ -1,0 +1,114 @@
+.root { -fx-background-color: #1a1a2e; }
+
+.main-bg { -fx-background-color: #1a1a2e; }
+
+.header-title {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ecf0f1;
+}
+
+.card {
+    -fx-background-color: #16213e;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 8, 0, 0, 3);
+}
+
+/* Status box */
+.status-label {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ecf0f1;
+}
+.status-connecting { -fx-background-color: #4a3800; }
+.status-connected  { -fx-background-color: #1a4731; }
+.status-error      { -fx-background-color: #4a1520; }
+.status-calling    { -fx-background-color: #003366; }
+.status-failed     { -fx-background-color: #6b1a1a; }
+
+/* Failure panel */
+.failure-panel { -fx-background-color: #3d0e0e; -fx-border-color: #dc3545; -fx-border-width: 1.5; -fx-border-radius: 12; }
+.failure-msg   { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #ff8a80; }
+.failure-code  { -fx-font-size: 12px; -fx-text-fill: #aaa; }
+
+/* Waiting card */
+.waiting-card  { -fx-background-color: #3d2e00; }
+.waiting-label { -fx-font-size: 13px; -fx-text-fill: #ffd54f; -fx-font-weight: bold; }
+
+/* Dialer input */
+.dialer-input {
+    -fx-background-color: #0d1b2a;
+    -fx-text-fill: #ecf0f1;
+    -fx-prompt-text-fill: #546e7a;
+    -fx-border-color: #2d3561;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-padding: 10 14;
+    -fx-font-size: 15px;
+}
+.dialer-input:focused { -fx-border-color: #0078d4; }
+
+/* Buttons */
+.btn {
+    -fx-padding: 10 18;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+.btn:hover    { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 6, 0, 0, 2); }
+.btn:disabled { -fx-opacity: 0.45; }
+
+.btn-call     { -fx-background-color: #0078d4; -fx-text-fill: white; }
+.btn-call:hover { -fx-background-color: #106ebe; }
+.btn-answer   { -fx-background-color: #00b894; -fx-text-fill: white; }
+.btn-answer:hover { -fx-background-color: #00a381; }
+.btn-reject   { -fx-background-color: #d63031; -fx-text-fill: white; }
+.btn-reject:hover { -fx-background-color: #b71c1c; }
+.btn-hangup   { -fx-background-color: #e17055; -fx-text-fill: white; }
+.btn-hangup:hover { -fx-background-color: #c0614a; }
+.btn-transfer { -fx-background-color: #6c5ce7; -fx-text-fill: white; }
+.btn-transfer:hover { -fx-background-color: #5a4bd1; }
+.btn-cancel   { -fx-background-color: #546e7a; -fx-text-fill: white; }
+.btn-cancel:hover { -fx-background-color: #455a64; }
+
+/* Active call card */
+.active-call-card { -fx-background-color: linear-gradient(to bottom right, #00695c, #00897b); }
+.timer-label       { -fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: white; }
+.active-caller-label { -fx-font-size: 17px; -fx-text-fill: rgba(255,255,255,0.85); }
+
+/* Incoming call card */
+.incoming-card { -fx-background-color: linear-gradient(to bottom right, #1565c0, #6a1b9a); }
+.caller-label  { -fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; }
+
+/* Transfer card */
+.transfer-card { -fx-background-color: #1e1040; -fx-border-color: #6c5ce7; -fx-border-width: 1.5; -fx-border-radius: 12; }
+.transfer-status { -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 8 14; -fx-background-radius: 6; }
+.ts-progress { -fx-background-color: #003366; -fx-text-fill: #90caf9; }
+.ts-success  { -fx-background-color: #1a4731; -fx-text-fill: #a5d6a7; }
+.ts-failed   { -fx-background-color: #4a1520; -fx-text-fill: #ef9a9a; }
+
+/* Log area */
+.log-label { -fx-font-size: 12px; -fx-text-fill: #546e7a; }
+.log-area {
+    -fx-control-inner-background: #0d1b2a;
+    -fx-text-fill: #00e676;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-font-size: 11px;
+    -fx-border-color: #1e3a5f;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-highlight-fill: #2d3561;
+}
+.log-area .scroll-pane { -fx-background-color: #0d1b2a; }
+.log-area .scroll-pane .viewport { -fx-background-color: #0d1b2a; }
+
+/* Scroll pane */
+.scroll-pane { -fx-background-color: #1a1a2e; -fx-border-color: transparent; }
+.scroll-pane > .viewport { -fx-background-color: #1a1a2e; }
+.scroll-pane .scroll-bar { -fx-background-color: #16213e; }
