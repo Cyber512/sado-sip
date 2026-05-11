@@ -20,7 +20,8 @@ public class MainController implements Initializable {
     static final String SIP_USER   = "1700";
     static final String SIP_PASS   = "aa1700aa";
     static final String SIP_DOMAIN = "lite-sip.mib.uz";
-    static final String WS_URL     = "wss://lite-sip.mib.uz:8089/ws";
+    static final String SIP_HOST   = "lite-sip.mib.uz";
+    static final int    SIP_PORT   = 5060;
 
     // --- FXML bindings ---
     @FXML private Label statusBadge;
@@ -81,7 +82,7 @@ public class MainController implements Initializable {
         setStatus("IDLE", "Ulanilmagan");
 
         // Create engine and connect
-        engine = new SipEngine(SIP_USER, SIP_PASS, SIP_DOMAIN, WS_URL);
+        engine = new SipEngine(SIP_USER, SIP_PASS, SIP_DOMAIN, SIP_HOST, SIP_PORT);
         engine.setListener(new SipEngine.Listener() {
             @Override
             public void onState(SipEngine.State s, String detail) {
