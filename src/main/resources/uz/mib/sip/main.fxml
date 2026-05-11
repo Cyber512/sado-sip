@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="uz.mib.sip.ui.MainController"
+      spacing="0"
+      prefWidth="480">
+
+    <!-- Header -->
+    <HBox styleClass="header-box" alignment="CENTER_LEFT" spacing="12">
+        <Label text="📞 MIB SIP" styleClass="app-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="statusBadge" text="Offline" styleClass="status-error"/>
+    </HBox>
+
+    <!-- Body -->
+    <VBox spacing="12" style="-fx-padding: 16;">
+
+        <!-- Status text -->
+        <Label fx:id="statusLabel" text="Ulanilmagan"
+               style="-fx-text-fill: #64748B; -fx-font-size: 12;"/>
+
+        <!-- Failure banner -->
+        <HBox fx:id="failureBanner" styleClass="failure-banner"
+              spacing="8" alignment="CENTER_LEFT">
+            <Label text="⚠" style="-fx-text-fill: #DC2626; -fx-font-size: 16;"/>
+            <Label fx:id="failureMessage" text="" wrapText="true"
+                   style="-fx-text-fill: #991B1B;" HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <!-- Waiting calls (for future multi-call support) -->
+        <Label fx:id="waitingCallsLabel" text="Kutayotgan qo'ng'iroqlar bor"
+               styleClass="waiting-badge"/>
+
+        <!-- Dialer card -->
+        <VBox styleClass="card" spacing="10">
+            <Label text="Raqam terish"
+                   style="-fx-font-weight: bold; -fx-font-size: 13; -fx-text-fill: #1E293B;"/>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="dialNumber"
+                           promptText="Raqam yoki SIP URI"
+                           styleClass="dial-input"
+                           HBox.hgrow="ALWAYS"
+                           onAction="#onCallBtn"/>
+                <Button fx:id="callBtn" text="Qo'ng'iroq" styleClass="btn-primary"
+                        onAction="#onCallBtn" prefWidth="110" prefHeight="40"/>
+                <Button fx:id="cancelBtn" text="Bekor" styleClass="btn-warning"
+                        onAction="#onCancelBtn" prefWidth="80" prefHeight="40"/>
+            </HBox>
+        </VBox>
+
+        <!-- Active call panel -->
+        <VBox fx:id="currentCallPane" styleClass="active-call-pane" spacing="6" alignment="CENTER">
+            <Label fx:id="callTimerLabel" text="00:00" styleClass="call-timer"/>
+            <HBox spacing="6" alignment="CENTER">
+                <Label text="Faol:"
+                       style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12;"/>
+                <Label fx:id="currentNumberLabel" text=""
+                       style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Incoming call panel -->
+        <VBox fx:id="incomingCallPane" styleClass="incoming-pane" spacing="12" alignment="CENTER">
+            <Label text="📲 Kiruvchi qo'ng'iroq"
+                   style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #1E40AF;"/>
+            <Label fx:id="callerLabel" text="Noma'lum"
+                   style="-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
+            <HBox spacing="16" alignment="CENTER">
+                <Button fx:id="answerBtn" text="✔ Javob berish"
+                        styleClass="btn-success" onAction="#onAnswerBtn"
+                        prefWidth="140" prefHeight="40"/>
+                <Button fx:id="rejectBtn" text="✖ Rad etish"
+                        styleClass="btn-danger" onAction="#onRejectBtn"
+                        prefWidth="140" prefHeight="40"/>
+            </HBox>
+        </VBox>
+
+        <!-- Call controls -->
+        <HBox fx:id="callControlsPane" spacing="10" alignment="CENTER">
+            <Button fx:id="hangupBtn" text="📵 Qo'yish"
+                    styleClass="btn-danger" onAction="#onHangupBtn"
+                    prefWidth="140" prefHeight="38"/>
+            <Button fx:id="transferBtn" text="↔ Transfer"
+                    styleClass="btn-purple" onAction="#onTransferBtn"
+                    prefWidth="140" prefHeight="38"/>
+        </HBox>
+
+        <!-- Transfer panel -->
+        <VBox fx:id="transferPane" styleClass="transfer-pane" spacing="10">
+            <Label text="Transfer manzili"
+                   style="-fx-font-weight: bold; -fx-text-fill: #5B21B6;"/>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="transferNumberField"
+                           promptText="Transfer raqami"
+                           styleClass="dial-input"
+                           HBox.hgrow="ALWAYS"
+                           onAction="#onDoTransferBtn"/>
+                <Button fx:id="doTransferBtn" text="Yuborish"
+                        styleClass="btn-purple" onAction="#onDoTransferBtn"
+                        prefWidth="90" prefHeight="38"/>
+            </HBox>
+            <Label fx:id="transferStatus" text=""
+                   style="-fx-text-fill: #7C3AED; -fx-font-size: 11;"/>
+        </VBox>
+
+        <!-- Debug log -->
+        <VBox spacing="4">
+            <Label text="Jurnal"
+                   style="-fx-font-size: 11; -fx-text-fill: #94A3B8;"/>
+            <ScrollPane fx:id="debugScrollPane" prefHeight="150" maxHeight="150"
+                        fitToWidth="true"
+                        style="-fx-background-color: #1E293B; -fx-background: #1E293B; -fx-border-radius: 6; -fx-background-radius: 6;">
+                <VBox fx:id="debugLog" spacing="1"
+                      style="-fx-background-color: #1E293B; -fx-padding: 6;"/>
+            </ScrollPane>
+        </VBox>
+
+    </VBox>
+</VBox>

@@ -1,0 +1,229 @@
+/* Root */
+.root {
+    -fx-background-color: #F1F5F9;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Card */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);
+    -fx-padding: 16 20;
+}
+
+/* Status badges */
+.status-connecting {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #92400E;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12;
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+.status-registered {
+    -fx-background-color: #DCFCE7;
+    -fx-text-fill: #166534;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12;
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+.status-calling {
+    -fx-background-color: #DBEAFE;
+    -fx-text-fill: #1E40AF;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12;
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+.status-error {
+    -fx-background-color: #FEE2E2;
+    -fx-text-fill: #991B1B;
+    -fx-background-radius: 20;
+    -fx-padding: 4 12;
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+/* Buttons */
+.btn-primary {
+    -fx-background-color: #2563EB;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 13;
+}
+.btn-primary:hover {
+    -fx-background-color: #1D4ED8;
+}
+.btn-primary:pressed {
+    -fx-background-color: #1E40AF;
+}
+
+.btn-danger {
+    -fx-background-color: #DC2626;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 13;
+}
+.btn-danger:hover {
+    -fx-background-color: #B91C1C;
+}
+
+.btn-success {
+    -fx-background-color: #16A34A;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 13;
+}
+.btn-success:hover {
+    -fx-background-color: #15803D;
+}
+
+.btn-warning {
+    -fx-background-color: #D97706;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 13;
+}
+.btn-warning:hover {
+    -fx-background-color: #B45309;
+}
+
+.btn-secondary {
+    -fx-background-color: #64748B;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-size: 13;
+}
+.btn-secondary:hover {
+    -fx-background-color: #475569;
+}
+
+.btn-purple {
+    -fx-background-color: #7C3AED;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 13;
+}
+.btn-purple:hover {
+    -fx-background-color: #6D28D9;
+}
+
+/* Dial input */
+.dial-input {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #CBD5E1;
+    -fx-border-width: 2;
+    -fx-padding: 10 14;
+    -fx-font-size: 15;
+}
+.dial-input:focused {
+    -fx-border-color: #2563EB;
+    -fx-background-color: white;
+}
+
+/* Call timer */
+.call-timer {
+    -fx-font-size: 32;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* Incoming call pane */
+.incoming-pane {
+    -fx-background-color: #EFF6FF;
+    -fx-background-radius: 10;
+    -fx-border-color: #BFDBFE;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-padding: 16;
+}
+
+/* Failure banner */
+.failure-banner {
+    -fx-background-color: #FEE2E2;
+    -fx-background-radius: 8;
+    -fx-border-color: #DC2626;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-padding: 10 14;
+}
+
+/* Active call pane */
+.active-call-pane {
+    -fx-background-color: linear-gradient(to bottom, #16A34A, #15803D);
+    -fx-background-radius: 10;
+    -fx-padding: 16;
+}
+
+/* Transfer pane */
+.transfer-pane {
+    -fx-background-color: #F5F3FF;
+    -fx-background-radius: 10;
+    -fx-border-color: #C4B5FD;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-padding: 14;
+}
+
+/* Debug area */
+.debug-line {
+    -fx-font-family: monospace;
+    -fx-font-size: 10;
+    -fx-text-fill: #94A3B8;
+}
+
+/* Waiting badge */
+.waiting-badge {
+    -fx-background-color: #FEF3C7;
+    -fx-background-radius: 6;
+    -fx-border-color: #FDE68A;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-padding: 6 12;
+    -fx-text-fill: #92400E;
+}
+
+/* Header box */
+.header-box {
+    -fx-background-color: linear-gradient(to right, #1E40AF, #2563EB);
+    -fx-padding: 16 20;
+}
+
+/* App title */
+.app-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+}
+
+/* ScrollPane */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: #1E293B;
+}
+.scroll-pane .scroll-bar {
+    -fx-background-color: #334155;
+}
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #475569;
+    -fx-background-radius: 4;
+}
