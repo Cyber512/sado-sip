@@ -103,14 +103,19 @@ public class SipManager {
                     listener.onLog("WS yopildi: " + r);
                     listener.onDisconnected(r);
                     if (reregTask != null) reregTask.cancel(false);
-                    sched.schedule(() -> { listener.onConnecting(); buildWs(); try { ws.setSocketFactory(trustAllCtx().getSocketFactory()); } catch(Exception e){} ws.connect(); }, 3, TimeUnit.SECONDS);
+                    sched.schedule(() -> {
+                        listener.onConnecting();
+                        buildWs();
+                        try { ws.setSocketFactory(trustAllCtx().getSocketFactory()); } catch(Exception e){}
+                        ws.connect();
+                    }, 3, TimeUnit.SECONDS);
                 }
                 @Override public void onError(Exception e) { listener.onLog("WS xatosi: " + e.getMessage()); }
             };
         } catch (URISyntaxException e) { listener.onLog("URI xatosi: " + e.getMessage()); }
     }
 
-    // ── Register ────────────────────────────────────────────────────────────
+    // ── Register ──────────────────────────────────────────────────────
 
     private void sendRegister(Map<String,String> auth) {
         regCseq++;
@@ -147,7 +152,7 @@ public class SipManager {
         send(b.toString());
     }
 
-    // ── Outgoing call ────────────────────────────────────────────────────────
+    // ── Outgoing call ──────────────────────────────────────────────────
 
     public void makeCall(String number) {
         if (activeCall != null) return;
@@ -166,22 +171,34 @@ public class SipManager {
         c.fromHdr = "<" + SIP_URI + ">;tag=" + c.localTag;
         c.toHdr   = "<" + target + ">";
 
+        sendInvite(null);
+        listener.onLog("INVITE → " + number);
+    }
+
+    private void sendInvite(Map<String,String> authChallenge) {
+        if (activeCall == null) return;
+        String target  = "sip:" + activeCall.remoteNumber + "@" + DOMAIN;
+        String contact = "sip:" + USER + "@" + SERVER + ";transport=ws";
+
         StringBuilder b = new StringBuilder();
         b.append("INVITE ").append(target).append(" SIP/2.0\r\n");
         b.append("Via: SIP/2.0/WSS ").append(SERVER).append(";branch=").append(branch()).append(";rport\r\n");
         b.append("Max-Forwards: 70\r\n");
-        b.append("From: ").append(c.fromHdr).append("\r\n");
-        b.append("To: ").append(c.toHdr).append("\r\n");
-        b.append("Call-ID: ").append(c.callId).append("\r\n");
-        b.append("CSeq: ").append(c.localCseq).append(" INVITE\r\n");
+        b.append("From: ").append(activeCall.fromHdr).append("\r\n");
+        // For re-INVITE after 401, To must NOT contain remote tag (still no dialog)
+        b.append("To: ").append(activeCall.toHdr).append("\r\n");
+        b.append("Call-ID: ").append(activeCall.callId).append("\r\n");
+        b.append("CSeq: ").append(activeCall.localCseq).append(" INVITE\r\n");
         b.append("Contact: <").append(contact).append(">\r\n");
         b.append("Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,REFER\r\n");
         b.append("Supported: replaces,100rel\r\n");
+        if (authChallenge != null) {
+            b.append("Authorization: ").append(digest("INVITE", target, authChallenge)).append("\r\n");
+        }
         b.append("Content-Type: application/sdp\r\n");
-        b.append("Content-Length: ").append(c.localSdp.length()).append("\r\n\r\n");
-        b.append(c.localSdp);
+        b.append("Content-Length: ").append(activeCall.localSdp.length()).append("\r\n\r\n");
+        b.append(activeCall.localSdp);
         send(b.toString());
-        listener.onLog("INVITE → " + number);
     }
 
     public void cancelOutgoing() {
@@ -199,7 +216,7 @@ public class SipManager {
         send(b.toString());
     }
 
-    // ── Incoming call ────────────────────────────────────────────────────────
+    // ── Incoming call ──────────────────────────────────────────────────
 
     public void answer() {
         if (activeCall == null || activeCall.outgoing) return;
@@ -219,7 +236,6 @@ public class SipManager {
         b.append("CSeq: ").append(activeCall.localCseq).append(" INVITE\r\n");
         b.append("Content-Length: 0\r\n\r\n");
         send(b.toString());
-        CallState dead = activeCall;
         activeCall = null;
         listener.onCallTerminated(603, "Declined");
         sched.schedule(this::processWaiting, 200, TimeUnit.MILLISECONDS);
@@ -374,6 +390,7 @@ public class SipManager {
         if (activeCall == null || !activeCall.outgoing) return;
         int code = msg.getStatusCode();
 
+        // Update remote tag and contact from every response
         String toHdr = msg.getHeader("to");
         if (toHdr != null) { String t = extractTag(toHdr); if (t != null) activeCall.remoteTag = t; }
         String contactHdr = msg.getHeader("contact");
@@ -383,6 +400,34 @@ public class SipManager {
         if (code == 180) { listener.onCallProgress(180, "Ringing", null); return; }
         if (code == 183) { listener.onCallProgress(183, "Session Progress", msg.getBody()); return; }
 
+        // ── 401/407: digest auth challenge for INVITE ──────────────────────────────
+        if (code == 401 || code == 407) {
+            // RFC 3261: ACK must be sent for any non-2xx final response to INVITE
+            sendAckForError();
+
+            String hdrName = (code == 401) ? "www-authenticate" : "proxy-authenticate";
+            String authHdr  = msg.getHeader(hdrName);
+            if (authHdr == null) {
+                listener.onLog("401 geldi lekin WWW-Authenticate yo'q");
+                activeCall = null;
+                listener.onCallTerminated(code, msg.getReasonPhrase());
+                return;
+            }
+
+            // Increment CSeq and re-send INVITE with Authorization
+            activeCall.localCseq++;
+            // Fresh RTP port for the re-INVITE
+            activeCall.localRtpPort = freePort();
+            activeCall.localSdp     = buildSdp(activeCall.localRtpPort);
+            // Clear remote tag so To header in re-INVITE stays tag-free
+            activeCall.remoteTag    = null;
+
+            listener.onLog("INVITE 401 → auth bilan qayta yuborilmoqda...");
+            sendInvite(parseChallenge(authHdr));
+            return;
+        }
+
+        // ── 2xx: success ─────────────────────────────────────────────────────────────────
         if (code >= 200 && code < 300) {
             sendAck();
             activeCall.remoteSdp   = msg.getBody();
@@ -390,10 +435,14 @@ public class SipManager {
             listener.onCallEstablished(new CallInfo(activeCall.callId, activeCall.remoteNumber, activeCall.remoteSdp, true));
             return;
         }
+
+        // ── 3xx-6xx: failure ───────────────────────────────────────────────────────────
         if (code >= 300) {
-            sendAck();
+            sendAckForError();
+            int failCode = code;
+            String failReason = msg.getReasonPhrase();
             activeCall = null;
-            listener.onCallTerminated(code, msg.getReasonPhrase());
+            listener.onCallTerminated(failCode, failReason);
         }
     }
 
@@ -415,7 +464,6 @@ public class SipManager {
         b.append("CSeq: ").append(activeCall.localCseq).append(" BYE\r\n");
         b.append("Content-Length: 0\r\n\r\n");
         send(b.toString());
-        CallState dead = activeCall;
         activeCall = null;
         listener.onCallTerminated(0, "BYE sent");
         sched.schedule(this::processWaiting, 200, TimeUnit.MILLISECONDS);
@@ -451,9 +499,29 @@ public class SipManager {
         send(b.toString());
     }
 
+    /** ACK for 2xx responses (dialog-establishing) */
     private void sendAck() {
         if (activeCall == null) return;
-        String reqUri = activeCall.inviteContact != null ? activeCall.inviteContact : "sip:" + activeCall.remoteNumber + "@" + DOMAIN;
+        String reqUri = activeCall.inviteContact != null ? activeCall.inviteContact
+                      : "sip:" + activeCall.remoteNumber + "@" + DOMAIN;
+        StringBuilder b = new StringBuilder();
+        b.append("ACK ").append(reqUri).append(" SIP/2.0\r\n");
+        b.append("Via: SIP/2.0/WSS ").append(SERVER).append(";branch=").append(branch()).append(";rport\r\n");
+        b.append("Max-Forwards: 70\r\n");
+        b.append("From: ").append(activeCall.fromHdr).append("\r\n");
+        String to = activeCall.toHdr;
+        if (activeCall.remoteTag != null && !to.contains("tag=")) to += ";tag=" + activeCall.remoteTag;
+        b.append("To: ").append(to).append("\r\n");
+        b.append("Call-ID: ").append(activeCall.callId).append("\r\n");
+        b.append("CSeq: ").append(activeCall.localCseq).append(" ACK\r\n");
+        b.append("Content-Length: 0\r\n\r\n");
+        send(b.toString());
+    }
+
+    /** ACK for non-2xx responses (401, 403, 486, etc.) — same transaction, original Request-URI */
+    private void sendAckForError() {
+        if (activeCall == null) return;
+        String reqUri = "sip:" + activeCall.remoteNumber + "@" + DOMAIN;
         StringBuilder b = new StringBuilder();
         b.append("ACK ").append(reqUri).append(" SIP/2.0\r\n");
         b.append("Via: SIP/2.0/WSS ").append(SERVER).append(";branch=").append(branch()).append(";rport\r\n");
@@ -521,7 +589,7 @@ public class SipManager {
         }
     }
 
-    // ── SDP ─────────────────────────────────────────────────────────────────
+    // ── SDP ──────────────────────────────────────────────────────────────
 
     public static String buildSdp(int port) {
         String ip = localIp();
@@ -555,7 +623,7 @@ public class SipManager {
     public boolean isEstablished() { return activeCall != null && activeCall.established; }
     public SipManager.CallState getActiveCall() { return activeCall; }
 
-    // ── Digest auth ──────────────────────────────────────────────────────────
+    // ── Digest auth ───────────────────────────────────────────────────────────
 
     private String digest(String method, String uri, Map<String,String> ch) {
         String realm  = ch.getOrDefault("realm","");
@@ -566,19 +634,19 @@ public class SipManager {
             MessageDigest md = MessageDigest.getInstance("MD5");
             String ha1 = hex(md.digest((USER + ":" + realm + ":" + PASS).getBytes())); md.reset();
             String ha2 = hex(md.digest((method + ":" + uri).getBytes())); md.reset();
-            StringBuilder a = new StringBuilder("Digest username=\"").append(USER)
-                .append("\",realm=\"").append(realm).append("\",nonce=\"").append(nonce)
-                .append("\",uri=\"").append(uri).append("\",");
+            StringBuilder a = new StringBuilder("Digest username=\"" ).append(USER)
+                .append("\",realm=\"" ).append(realm).append("\",nonce=\"" ).append(nonce)
+                .append("\",uri=\""   ).append(uri  ).append("\",");
             String resp;
             if (qop != null && qop.contains("auth")) {
                 String nc = "00000001", cn = genTag().substring(0,8);
                 resp = hex(md.digest((ha1+":"+nonce+":"+nc+":"+cn+":auth:"+ha2).getBytes()));
-                a.append("qop=auth,nc=").append(nc).append(",cnonce=\"").append(cn).append("\",");
+                a.append("qop=auth,nc=").append(nc).append(",cnonce=\"" ).append(cn).append("\",");
             } else {
                 resp = hex(md.digest((ha1+":"+nonce+":"+ha2).getBytes()));
             }
-            a.append("response=\"").append(resp).append("\"");
-            if (opaque != null) a.append(",opaque=\"").append(opaque).append("\"");
+            a.append("response=\"" ).append(resp).append("\"");
+            if (opaque != null) a.append(",opaque=\"" ).append(opaque).append("\"");
             return a.toString();
         } catch (Exception e) { return ""; }
     }
